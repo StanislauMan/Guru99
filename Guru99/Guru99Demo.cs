@@ -1,13 +1,9 @@
-﻿using Microsoft.Graph;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Guru99
 {
@@ -19,7 +15,7 @@ namespace Guru99
         [OneTimeSetUp]
         public void startBrowser()
         {
-            driver = new ChromeDriver("C:\\chromedriver");
+            driver = new ChromeDriver("D:\\");
         }
 
         [Test]
@@ -35,15 +31,23 @@ namespace Guru99
             driver.Manage().Window.Maximize();
             IWebElement signUpButton = driver.FindElement(By.XPath("//*[@id='app']/div/div/div[2]/button"));
             signUpButton.Click();
-
-             System.Threading.Thread.Sleep(1000);
-            //var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
-
+            
+            //wait until new window will be captured
+            while (driver.WindowHandles.Count == 1)
+            {
+                Thread.Sleep(200);
+            }
+            
             driver.SwitchTo().Window(driver.WindowHandles[1]);
             
+            //Setting up driver wait
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+            //Setup wait ... until
+            wait.Until(e => e.FindElements(By.XPath("//*[@id='identifierId']")).Count > 0);
+
             // Store locator values of email text box and sign up button
             IWebElement emailTextBox = driver.FindElement(By.XPath("//*[@id='identifierId']"));
-            IWebElement nextButton = driver.FindElement(By.XPath("//*[@id='identifierNext']/div/button/div[3]"));
+            IWebElement nextButton = driver.FindElement(By.XPath("//*[@id=\"identifierNext\"]/div/button"));
 
             
                 emailTextBox.SendKeys("stanislau.mandryk@leverx.com");
